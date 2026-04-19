@@ -53,7 +53,7 @@
 
 
 
-## ETL Pipeline Setup with Python
+## ETL Pipeline Setup with Python/Inserting Record into MongoDB
 1. Import certifi in push_data.py
 2. Certifi - Python package that provides a set of root certificates - commonly used to make a secure HTTP connection.
 3. Now we will write the function for converting our csv data to json. 
@@ -64,6 +64,49 @@
 8. After you run python push_data.py - the data gets inserted into MongoDB cluster database. Open that Cluster0 in browser, and open the database, and you can find your json data inserted into it. 
 
 
+## Data Ingestion Summary
+1. Data Ingestion Config - It is the basic info to where our data will be stored, train test split, their paths and other things. 
+2. Read the data from MongoDB and converting this data to a Data Ingestion Artifact based on Data Ingestion Config features. 
+3. Artifact would contain our raw data - train and test split also. 
+4. Then we will do feature engineering on the train and test data and then proceed for Data Transformation.
 
+
+## Data Ingestion Configuration
+1. Create training_pipeline folder in constants -> in that create __init__.py where you store the common data that we insert into our Data Ingestion Config. Also define the common constant variable in training pipeline i.e raw data, train and test data. 
+2. Go to MongoDB -> Network Access -> IP Access List -> Create New IP Address -> Add 0.0.0.0/0 
+3. Create config_entity.py in entity folder. Edit it acc. to the below points:
+- Goal : To create Folder Artifact -> Date and Time folder -> Data Ingestion -> feature store -> data.csv
+- TrainingPipelineConfig() - sets the timestamp and main folder. (self.artifact_dir: It joins the main "Artifact" folder name with the "Timestamp".)
+- DataIngestionConfig() - defines exactly where the data goes during the Data Ingestion phase (pulling data from a source)
+- self.data_ingestion_dir: Creates a sub-folder inside your timestamped artifact folder specifically for ingestion.
+- self.feature_store_file_path: This is where the raw data is saved.
+- self.training_file_path & self.testing_file_path: Once the code splits the training and test data, it saves those two specific files in the ingested folder.
+- self.train_test_split_ratio: A number (like 0.2) that tells the code how much data to keep aside for testing.
+- self.collection_name & database_name: Since you'll likely pull data from your MongoDB's database and collection. 
+
+
+## Data Ingestion Component/Initiate
+### Read the Data from MongoDB -> Create Feature Store -> Split Test and Train Data -> Save in Ingested folder.
+#### Read Data from MongoDB:
+1. Create data_ingestion.py in components folder. Edit code as per below:
+- export_collection_as_dataframe() - Connects to MongoDB database and converts into a dataframe. 
+- collection.find(): It grabs every single record in that database table.
+- pd.DataFrame() - converts to dataframe.
+- Drop the _id column (_id column is always present if you retrieve data from MongoDB).
+- Replace NA values with NAN (null value).
+- initiate_data_ingestion() - collect the data frame using the above function. 
+
+#### Create Feature Store
+- export_data_into_feature_store() - gets the df data -> Stores in the feature store by converting into csv in feature_store_file_path
+#### Split Training and Testing Data
+- split_data_as_train_test() - divides the above csv data into train and test csv. 
+- os.makedirs(dir_path) - It looks at the path you defined (Artifacts/timestamp/data_ingestion/ingested)
+- It saves the Training data to your training_file_path and Testing data to testing_file_path.
+- Call split_data_as_train_test() function in initiate_data_ingestion() with the dataframe.
+2. Create artifact_entity.py in entity folder and initialize DataIngestionArtifact dataclass to store your Trained and Test data in Artifacts folder.
+- Now call this dataclass in initiate_data_ingestion() - with the trained data and test data file path.
+3. Create main.py in your root folder and call TrainingPipelineConfig and DataIngestionConfig
+- From that, create DataIngestion() obj and then use initiate_data_ingestion() to start the Full Process of Data Ingestion. 
+- Execute python main.py - if it will create artifacts folder with train and test.csv in ingested folder and raw data in feature store, then our code is a success.
 
 
