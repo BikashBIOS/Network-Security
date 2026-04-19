@@ -19,8 +19,11 @@
 7. Remember to add __init__.py in all the folders. Push again.
 
 
-## Quick Setup
+## Setup.py 
 1. Specify the code in setup.py to get the libraries from requirements.txt
 2. Specify the version, package info and retrieve from get_requirements()
 3. After executing pip install -r requirments.txt, you can see your package folder getting created with all the info and requirements. 
-4. 
+
+
+## Logging and Exception
+1. Create the logging and Exception file
