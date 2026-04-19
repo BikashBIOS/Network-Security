@@ -95,7 +95,6 @@
 - Drop the _id column (_id column is always present if you retrieve data from MongoDB).
 - Replace NA values with NAN (null value).
 - initiate_data_ingestion() - collect the data frame using the above function. 
-
 #### Create Feature Store
 - export_data_into_feature_store() - gets the df data -> Stores in the feature store by converting into csv in feature_store_file_path
 #### Split Training and Testing Data
@@ -108,5 +107,18 @@
 3. Create main.py in your root folder and call TrainingPipelineConfig and DataIngestionConfig
 - From that, create DataIngestion() obj and then use initiate_data_ingestion() to start the Full Process of Data Ingestion. 
 - Execute python main.py - if it will create artifacts folder with train and test.csv in ingested folder and raw data in feature store, then our code is a success.
+4. If your code is success, delete the Artifacts folder and logs folder, then commit the code.
 
 
+## Data Validation Configuration
+Validate data based upon:
+- Our dataset should have same no. of features(columns). 
+- Data Drift - it happens when the data you see today is significantly different from the data you used to train the model.
+- Validate no. of columns, numerical columns exist or not. 
+1. In training_pipeline.py, you store the common data - Data validation, invalid, valid data, Drift report, preprocessing.pkl - that we insert into our Data Validation Config.
+2. Then in config_entity.py, we use DataValidation() to get the paths for valid data, invalid data, train invalid and valid, test valid and invalid data, data drift report. 
+3. Add the no. 2 values in DataValidationArtifact dataclass also in artifact_entity.py
+4. Create data_schema folder in root. Then create schema.yaml file and paste the code in that. Also specify the path for this in training_pipeline > __init__.py file.
+5. Create main_utils folder in utils > Add __init__.py and utils.py in it. Now add the code in utils.py for reading yaml file. 
+6. Create data_validation.py, then write code below:
+- initialize dataingestionartifact and datavalidationartifact and then read the schema file. 
